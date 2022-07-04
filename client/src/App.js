@@ -1,12 +1,45 @@
 import "./App.css";
 import { useState } from "react";
+import axios from "axios";
 
 function App() {
   const [name, setName] = useState("");
   const [age, setAge] = useState(0);
-  const [county, setCounty] = useState("");
+  const [country, setCountry] = useState("");
   const [position, setPosition] = useState("");
-  const [wage, setWage] = useState("");
+  const [wage, setWage] = useState(0);
+
+  const [employeeList, setEmployeeList] = useState([]);
+
+  const addEmployee = () => {
+    console.log("addEmployee 실행");
+    axios
+      .post("http://localhost:4002/create", {
+        name: name,
+        age: age,
+        country: country,
+        position: position,
+        wage: wage,
+      })
+      .then(() => {
+        setEmployeeList([
+          ...employeeList,
+          {
+            name: name,
+            age: age,
+            country: country,
+            position: position,
+            wage: wage,
+          },
+        ]);
+      });
+  };
+
+  const getEmployee = () => {
+    axios.get("http://localhost:4002/employees").then((response) => {
+      setEmployeeList(response.data);
+    });
+  };
 
   return (
     <div className="App">
@@ -29,7 +62,7 @@ function App() {
         <input
           type="text"
           onChange={(event) => {
-            setCounty(event.target.value);
+            setCountry(event.target.value);
           }}
         />
         <label>위치: </label>
@@ -46,7 +79,23 @@ function App() {
             setWage(event.target.value);
           }}
         />
-        <button>직원 추가</button>
+        <button onClick={addEmployee}>직원 추가</button>
+      </div>
+
+      <div className="employees">
+        <button onClick={getEmployee}>직원 보기</button>
+
+        {employeeList.map((val, key) => {
+          return (
+            <div className="employee" key={key}>
+              <h3>이름: {val.name}</h3>
+              <h3>나이: {val.age}</h3>
+              <h3>국적: {val.country}</h3>
+              <h3>위치: {val.position}</h3>
+              <h3>연봉: {val.wage}</h3>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
